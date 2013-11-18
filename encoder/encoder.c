@@ -2540,6 +2540,11 @@ static ALWAYS_INLINE void x264_bitstream_restore( x264_t *h, x264_bs_bak_t *bak,
     }
 }
 
+static int cabac_size_bytes( x264_cabac_t *cb )
+{
+    return cb->p - cb->p_start + cb->i_bytes_outstanding;
+}
+
 static int x264_slice_write( x264_t *h )
 {
     int i_skip;
@@ -2577,7 +2582,9 @@ static int x264_slice_write( x264_t *h )
     h->sh.i_qp = SPEC_QP( h->sh.i_qp );
     h->sh.i_qp_delta = h->sh.i_qp - h->pps->i_pic_init_qp;
 
-    x264_slice_header_write( &h->out.bs, &h->sh, h->i_nal_ref_idc );
+    if( !h->param.b_drh_mode )
+        x264_slice_header_write( &h->out.bs, &h->sh, h->i_nal_ref_idc );
+
     if( h->param.b_cabac )
     {
         /* alignment needed */
@@ -2597,6 +2604,9 @@ static int x264_slice_write( x264_t *h )
     i_mb_y = h->sh.i_first_mb / h->mb.i_mb_width;
     i_mb_x = h->sh.i_first_mb % h->mb.i_mb_width;
     i_skip = 0;
+
+    int cabac_last_size = -2;
+    int b_cabac_chunk_ending = 0;
 
     while( 1 )
     {
@@ -2842,6 +2852,38 @@ cont:
 
         if( mb_xy == h->sh.i_last_mb )
             break;
+
+        /* emulate Wii U DRH chunking behavior */
+        if( h->param.b_drh_mode )
+        {
+            if( b_cabac_chunk_ending && cabac_size_bytes(&h->cabac) > cabac_last_size )
+            {
+                x264_nal_t *nal = &h->out.nal[h->out.i_nal++];
+                nal->i_last_mb = mb_xy;
+                nal->i_payload = cabac_size_bytes(&h->cabac) - cabac_last_size;
+
+                if ( h->param.nalu_process )
+                    h->param.nalu_process( h, nal, h->fenc->opaque );
+                x264_nal_check_buffer( h );
+
+                /* x264_nal_check_buffer may realloc out.nal */
+                nal = &h->out.nal[h->out.i_nal - 1];
+                x264_nal_t *nal_next = &h->out.nal[h->out.i_nal];
+
+                nal_next->i_ref_idc = nal->i_ref_idc;
+                nal_next->i_type = nal->i_type;
+                nal_next->b_long_startcode = nal->b_long_startcode;
+                nal_next->i_first_mb = mb_xy + 1;
+                nal_next->i_payload = 0;
+                nal_next->p_payload = nal->p_payload + nal->i_payload;
+
+                cabac_last_size = cabac_size_bytes(&h->cabac);
+                b_cabac_chunk_ending = 0;
+            }
+
+            if( i_mb_y > 0 && (i_mb_y % 6) == 0 && i_mb_x == 0 )
+                b_cabac_chunk_ending = 1;
+        }
 
         if( SLICE_MBAFF )
         {

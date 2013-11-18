@@ -323,6 +323,8 @@ typedef struct x264_param_t
     int         b_bluray_compat;
     int         b_avcintra_compat;
 
+    int         b_drh_mode;         /* Compatibility mode for Wii U Gamepad video encoding */
+
     int         b_deblocking_filter;
     int         i_deblocking_filter_alphac0;    /* [-6, 6] -6 light filter, 6 strong */
     int         i_deblocking_filter_beta;       /* [-6, 6]  idem */
