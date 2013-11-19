@@ -606,7 +606,7 @@ static const int8_t i16x16_mode_available[5][5] =
     {I_PRED_16x16_DC_LEFT, I_PRED_16x16_H, -1, -1, -1},
     {I_PRED_16x16_DC_TOP, I_PRED_16x16_V, -1, -1, -1},
     {I_PRED_16x16_V, I_PRED_16x16_H, I_PRED_16x16_DC, -1, -1},
-    {I_PRED_16x16_V, I_PRED_16x16_H, I_PRED_16x16_DC, I_PRED_16x16_P, -1},
+    {I_PRED_16x16_V, I_PRED_16x16_H, I_PRED_16x16_DC, -1, -1},
 };
 
 static const int8_t chroma_mode_available[5][5] =
@@ -615,7 +615,7 @@ static const int8_t chroma_mode_available[5][5] =
     {I_PRED_CHROMA_DC_LEFT, I_PRED_CHROMA_H, -1, -1, -1},
     {I_PRED_CHROMA_DC_TOP, I_PRED_CHROMA_V, -1, -1, -1},
     {I_PRED_CHROMA_V, I_PRED_CHROMA_H, I_PRED_CHROMA_DC, -1, -1},
-    {I_PRED_CHROMA_V, I_PRED_CHROMA_H, I_PRED_CHROMA_DC, I_PRED_CHROMA_P, -1},
+    {I_PRED_CHROMA_V, I_PRED_CHROMA_H, I_PRED_CHROMA_DC, -1, -1},
 };
 
 static const int8_t i8x8_mode_available[2][5][10] =

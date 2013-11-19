@@ -6,3 +6,6 @@ not ready for production use. Use at your own risk.
 
 * Added a new x264 param: b_drh_mode
   * Enables DRH style slicing: emit a NAL unit every 6 rows of macroblocks.
+
+* Disables planar prediction (not working on DRC) - should be made runtime
+  configurable at some point
