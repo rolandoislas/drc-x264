@@ -9,3 +9,5 @@ not ready for production use. Use at your own risk.
 
 * Disables planar prediction (not working on DRC) - should be made runtime
   configurable at some point
+
+* Force pic_init_qp to 32 and slice_qp_delta to 0.
