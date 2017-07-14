@@ -429,7 +429,11 @@ static void print_csp_names( int longhelp )
     printf( "                              - valid csps for `lavf' demuxer:\n" );
     printf( INDENT );
     size_t line_len = strlen( INDENT );
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 74, 100)
+	for( enum AVPixelFormat i = AV_PIX_FMT_NONE+1; i < AV_PIX_FMT_NB; i++ )
+#else
     for( enum PixelFormat i = AV_PIX_FMT_NONE+1; i < AV_PIX_FMT_NB; i++ )
+#endif
     {
         const char *pfname = av_get_pix_fmt_name( i );
         if( pfname )
